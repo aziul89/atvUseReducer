@@ -1,0 +1,94 @@
+import React, { useReducer, useState } from "react";
+
+const initialState = {
+  tarefas: [],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "ADD_TAREFA":
+      return {
+        ...state,
+        tarefas: [...state.tarefas, action.payload],
+      };
+    case "REMOVE_TAREFA":
+      return {
+        ...state,
+        tarefas: state.tarefas.filter((tarefa) => tarefa !== action.payload),
+      };
+    case "TOGGLE_CONCLUIDA":
+      return {
+        ...state,
+        tarefas: state.tarefas.map((tarefa) =>
+          tarefa === action.payload
+            ? { ...tarefa, concluida: !tarefa.concluida }
+            : tarefa
+        ),
+      };
+    default:
+      return state;
+  }
+};
+
+const App = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [descricao, setDescricao] = useState("");
+  const [dataConclusao, setDataConclusao] = useState("");
+
+  const handleAddTarefa = () => {
+    if (descricao && dataConclusao) {
+      dispatch({
+        type: "ADD_TAREFA",
+        payload: { descricao, dataConclusao, concluida: false },
+      });
+      setDescricao("");
+      setDataConclusao("");
+    }
+  };
+
+  const handleRemoveTarefa = (tarefa) => {
+    dispatch({ type: "REMOVE_TAREFA", payload: tarefa });
+  };
+
+  const handleToggleConcluida = (tarefa) => {
+    dispatch({ type: "TOGGLE_CONCLUIDA", payload: tarefa });
+  };
+
+  return (
+    <div>
+      <h1>Lista de Tarefas</h1>
+      <div>
+        <label>
+          Descrição da Tarefa:
+          <input
+            type="text"
+            value={descricao}
+            onChange={(e) => setDescricao(e.target.value)}
+          />
+        </label>
+        <label>
+          Data de Conclusão:
+          <input
+            type="text"
+            value={dataConclusao}
+            onChange={(e) => setDataConclusao(e.target.value)}
+          />
+        </label>
+        <button onClick={handleAddTarefa}>Adicionar Tarefa</button>
+      </div>
+      <ul>
+        {state.tarefas.map((tarefa, index) => (
+          <li key={index}>
+            {tarefa.descricao} - {tarefa.dataConclusao} -{" "}
+            <button onClick={() => handleToggleConcluida(tarefa)}>
+              {tarefa.concluida ? "Desmarcar" : "Marcar"} Concluída
+            </button>{" "}
+            <button onClick={() => handleRemoveTarefa(tarefa)}>Remover</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default App;
